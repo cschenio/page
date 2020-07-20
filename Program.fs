@@ -1,22 +1,19 @@
-﻿open Suave
+﻿open System.IO
+
+open Suave
 open Suave.Filters
 open Suave.Operators
-open Suave.Successful
 
-let addTwoString n = sprintf "2 + %d = %d" n (n + 2)
-
-let powOfTwoString n = sprintf "2 ^ %d = %d" n (pown 2 n)
 
 [<EntryPoint>]
 let main argv =
-
-    let n = 6
-
-    let app =
+    let app: WebPart =
         choose
-            [ GET >=> choose
-                          [ path "/pow" >=> OK(powOfTwoString n)
-                            path "/add" >=> OK(addTwoString n) ] ]
+            [ GET >=> path "/" >=> Files.file "index.html"
+              GET >=> Files.browseHome
+              RequestErrors.NOT_FOUND "404 Page not found." ]
 
-    startWebServer defaultConfig app
+    let config = { defaultConfig with homeFolder = Some(Path.GetFullPath "./public") }
+
+    startWebServer config app
     0
